@@ -45,12 +45,7 @@ param scheduleConfig_stop scheduleConfig
 
 
 @description('Role definition to assign.')
-param roleDifinitions { name: string, id: string }[] = [
-  {
-    name: '仮装マシン電源オペレーター'
-    id: 'cfb29df2-1cb5-43e2-8414-e9eecc6572c3'
-  }
-]
+param roleDifinitions { name: string, id: string }[]
 @description('Name of the resource group containing the VM')
 param vmResourceGroupName string = resourceGroup().name
 

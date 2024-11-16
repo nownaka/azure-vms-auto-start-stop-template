@@ -1,6 +1,6 @@
 using './main.bicep'
 
-param location = '{The region in which you want to deploy the resource}'
+// param location = '{The region in which you want to deploy.}' // default: same as resource group region
 param appName = 'vmautostartstop'
 param environment = 'dev' // prd, stg, test , etc... 
 param suffix = null
