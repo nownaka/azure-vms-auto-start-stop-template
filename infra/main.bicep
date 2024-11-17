@@ -43,11 +43,13 @@ param scheduleConfig_start scheduleConfig
 @description('The confings for VM-Stop Schedules.')
 param scheduleConfig_stop scheduleConfig
 
-
 @description('Role definition to assign.')
 param roleDifinitions { name: string, id: string }[]
 @description('Name of the resource group containing the VM')
 param vmResourceGroupName string = resourceGroup().name
+
+@description('Resource name of Log Analytics Workspace')
+param workspaceName string = 'log-${resourceBaseName}'
 
 
 // --------------------------------------------------------------------------------
@@ -165,6 +167,27 @@ module jobSchedules './modules/jobSchedules.bicep' = [for config in _jobSchedule
   ]
 }]
 
+// diagnosticSetting
+@description('The confings for diagnosticSetting.')
+var _diagnosticSettingConfigs = [{
+  diagnosticSettingName: 'JobLogs'
+  logs: [{
+    category: 'JobLogs'
+    enabled: true
+  }]
+}]
+
+@description('Diagnostic Setting.')
+module diagnosticSettings './modules/diagnosticSettingsWithinAutomationAccount.bicep' = [ for config in _diagnosticSettingConfigs: {
+  name: 'Deploy-DiagnosticSettings-${config.diagnosticSettingName}'
+  params: {
+    scopeResourceName: automationAccount.outputs.name
+    diagnosticSettingName: config.diagnosticSettingName
+    logs: config.logs
+    workspaceId: workspace.outputs.resourceId
+  }
+}]
+
 
 /* Role Assingnment */
 @description('Role Assingnment.')
@@ -176,3 +199,13 @@ module roleAssignment_resourceGroup './modules//roleAssignments.bicep' = [ for (
   }
   scope: resourceGroup(vmResourceGroupName)
 }]
+
+
+/* Log Analytics Workspace */
+module workspace './modules/workspaces.bicep' = {
+  name: 'Deploy-LogAnalyticsWorkspace'
+  params: {
+    workspaceLocation: location
+    workspaceName: workspaceName
+  }
+}
